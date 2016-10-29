@@ -57,9 +57,9 @@ class emailOrderParser(object):
             trade = order.split(self.stock_order_separator)
             if len(trade) == 3:
                 stock_code = trade[0]
-                stock_pct = trade[1]
-                stock_price = trade[2]
-                if len(stock_code) == 6 and 0 <= float(stock_pct) <= 100 and float(stock_price) > 0:
+                stock_pct = float(trade[1])
+                stock_price = float(trade[2])
+                if len(stock_code) == 6 and 0 <= stock_pct <= 100 and stock_price > 0:
                     print("received order {} for pct {} of price {}".format(stock_code, stock_pct, stock_price))
                     orders.append((stock_code, stock_pct, stock_price))
         return orders

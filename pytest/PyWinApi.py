@@ -40,7 +40,11 @@ class tradingAPI:
         self.trading_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["double_trade_panel_child_number"]))
         if not self.trading_window:
             raise "Trading panel can't be located"   
-        focusWindow(self.main_window, win32con.SW_SHOWDEFAULT)     
+        
+    def getFocus(self):
+        self.set_foreground()
+        self.set_doubleTradeScreen()
+        time.sleep(0.5)
 
     def getAccDetails(self):
         summary_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["summary_panel_child_number"]))
@@ -51,12 +55,15 @@ class tradingAPI:
         return free_cash, port_value, total_value, frozen_value
         
     def clearStock(self, stock):
+        self.getFocus()
         self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
+        time.sleep(1.5)
         self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
         self.click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # click static to reflect the stock position
         self.clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
         
     def adjustStock(self, stock, pct, price, cash, tol):
+        self.getFocus()
         # for now we only have buy position from empty position
         #self.findStockPosition(stock) # this can't be easily achieved for now
         allocated_value = pct / 100.0 * tol
@@ -65,7 +72,7 @@ class tradingAPI:
             amount = spendable_value // price
             amount = amount - amount % 100 
             self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-            time.sleep(0.3)
+            time.sleep(1.5)
             self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
             self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
             self.click(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
@@ -84,18 +91,18 @@ class tradingAPI:
     def _window_enum_callback(self, hwnd, wildcard):
         '''Pass to win32gui.EnumWindows() to check all the opened windows'''
         if re.match(wildcard, str(win32gui.GetWindowText(hwnd))) != None:
-            self._handle = hwnd
+            self.main_window = hwnd
 
     def find_window_wildcard(self, wildcard):
-        self._handle = None
+        self.main_window = None
         win32gui.EnumWindows(self._window_enum_callback, wildcard)
 
     def set_foreground(self):
         """put the window in the foreground"""
-        focusWindow(self._handle, win32con.SW_SHOWDEFAULT)
+        focusWindow(self.main_window, win32con.SW_SHOWDEFAULT)
         
     def set_doubleTradeScreen(self):
-        sendKey(self._handle, win32con.VK_F6)
+        sendKey(self.main_window, win32con.VK_F6)
         
     def findChildWindows(self, hwnd):
         windows = []
