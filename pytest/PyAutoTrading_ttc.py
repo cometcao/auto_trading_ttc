@@ -19,6 +19,7 @@ class TTC_autoTrader:
     
     def orderProcess(self):
         orders = self.getOrderDetails()
+        #orders = [('002755', 0, 10)]
         for stock, pct, price in orders:
             free_cash, _, total_value, _ = self.winapi.getAccDetails()
             if pct == 0: # sell off the stock

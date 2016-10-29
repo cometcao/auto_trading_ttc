@@ -54,7 +54,7 @@ class tradingAPI:
         self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
         self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
         self.click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # click static to reflect the stock position
-        self.winapi.click(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
+        self.clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
         
     def adjustStock(self, stock, pct, price, cash, tol):
         # for now we only have buy position from empty position
@@ -64,10 +64,11 @@ class tradingAPI:
         if spendable_value > 3000:
             amount = spendable_value // price
             amount = amount - amount % 100 
-            self.setEditText(self.trading_window[2][0], stock)
-            self.setComboBoxIndex(self.trading_window[4][0], 1)
-            self.setEditText(self.trading_window[7][0], str(amount)) # enter stock amount
-            self.click(self.trading_window[8][0])# buy button
+            self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
+            time.sleep(0.3)
+            self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
+            self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
+            self.click(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
 
     def findStockPosition(self, stock):
         self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index "])][int(self.tradingCfg["order_value_index "])], stock)
