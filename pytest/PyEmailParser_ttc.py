@@ -24,13 +24,19 @@ class emailOrderParser(object):
         config = configparser.ConfigParser()
         #config.read_file(codecs.open(iniPath, "r", "utf8"))
         config.read(iniPath)
-        emailCfg = config["EmailConfig"]
-        self.pop_con = poplib.POP3_SSL(emailCfg["emailServer"], '995')
-        #print (self.pop_con.getwelcome())
-        self.pop_con.user(emailCfg["username"])#emailCfg["username"]
-        self.pop_con.pass_(emailCfg["password"]) #emailCfg["password"]
-        self.order_separator = emailCfg["order_separator"]
-        self.stock_order_separator = emailCfg["stock_order_separator"]
+        for i in range(5): # retry max 5 times
+            try:
+                emailCfg = config["EmailConfig"]
+                self.pop_con = poplib.POP3_SSL(emailCfg["emailServer"], '995')
+                #print (self.pop_con.getwelcome())
+                self.pop_con.user(emailCfg["username"])#emailCfg["username"]
+                self.pop_con.pass_(emailCfg["password"]) #emailCfg["password"]
+                self.order_separator = emailCfg["order_separator"]
+                self.stock_order_separator = emailCfg["stock_order_separator"]
+            except:
+                continue
+            break
+            
         
     def retrieveMsg(self):
         messages = [self.pop_con.retr(i) for i in range(1, len(self.pop_con.list()[1]) + 1)]
