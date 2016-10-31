@@ -37,6 +37,7 @@ class tradingAPI:
         self.main_window = self.find_window(None, self.tradingCfg["main_window_label"])
         if not self.main_window:
             raise "Trading application not detected!!"
+        self.getFocus()
         self.trading_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["double_trade_panel_child_number"]))
         if not self.trading_window:
             raise "Trading panel can't be located"   
