@@ -1,4 +1,6 @@
-# auto_trading_ttc
+# auto_trading_ttc [同花顺下单外挂]
+
+可以修改配置文件支持其他下单程序， 对应的邮件分析系统是扫描新邮件检索下单信号。 通常来说外挂下单应该是你所需要的， 请随意使用。 不用谢， 叫我雷锋
 
 The content of file autoTrading_ttc.ini below
 
