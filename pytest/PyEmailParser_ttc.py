@@ -6,6 +6,7 @@ Created on 28 Oct 2016
 '''
 import poplib, email
 import configparser
+import time
 #import codecs
 
 iniPath="autoTrading_ttc.ini"
@@ -34,18 +35,27 @@ class emailOrderParser(object):
                 self.order_separator = emailCfg["order_separator"]
                 self.stock_order_separator = emailCfg["stock_order_separator"]
             except:
+                print ("failed to connect to email server! retrying...")
+                time.sleep(0.5)
                 continue
             break
             
         
     def retrieveMsg(self):
-        messages = [self.pop_con.retr(i) for i in range(1, len(self.pop_con.list()[1]) + 1)]
-        # Concat message pieces:
-        messages = [b"\n".join(mssg[1]) for mssg in messages]
-        #Parse message intom an email object:
-        messages = [email.message_from_bytes(mssg) for mssg in messages]
-        self.pop_con.quit()
-        return messages
+        for i in range(5): # retry max 5 times
+            try:
+                messages = [self.pop_con.retr(i) for i in range(1, len(self.pop_con.list()[1]) + 1)]
+                # Concat message pieces:
+                messages = [b"\n".join(mssg[1]) for mssg in messages]
+                #Parse message intom an email object:
+                messages = [email.message_from_bytes(mssg) for mssg in messages]
+                self.pop_con.quit()
+                return messages
+            except:
+                print ("failed to connect to read email! retrying...")
+                time.sleep(0.5)
+                continue
+        return []
     
     def getOrder(self):
         msgs = self.retrieveMsg()
