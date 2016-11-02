@@ -6,8 +6,10 @@ order confirmation needs to be disabled!!!
 '''
 
 import time
+import traceback
 from PyEmailParser_ttc import emailOrderParser
 from PyWinApi import tradingAPI
+from time import strftime
 
 class TTC_autoTrader:
     def __init__(self):
@@ -33,7 +35,9 @@ if __name__ == '__main__':
     ttc = TTC_autoTrader()
     while True:
         try:
+            print(strftime("%Y-%m-%d %H:%M:%S"))
             ttc.orderProcess()
         except:
+            traceback.print_exc()
             raise "order failed! please check!"
         time.sleep(60)
