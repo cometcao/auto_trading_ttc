@@ -10,6 +10,7 @@ import traceback
 from PyEmailParser_ttc import emailOrderParser
 from PyWinApi import tradingAPI
 from time import strftime
+import threading
 
 class TTC_autoTrader:
     def __init__(self):
@@ -20,15 +21,22 @@ class TTC_autoTrader:
         return ep.getOrder()
     
     def orderProcess(self):
-        orders = self.getOrderDetails()
-        #orders = [('002755', 0, 10)]
+        #orders = self.getOrderDetails()
+        orders = [('600689', 0, 1)]
         try:
             for stock, pct, price in orders:
                 free_cash, _, total_value, _ = self.winapi.getAccDetails()
                 if pct == 0: # sell off the stock
+                    print ("trying to sell off {}".format(stock))
                     self.winapi.clearStock(stock)
                 else:
-                    self.winapi.adjustStock(stock, pct, price, free_cash, total_value)
+                    allocated_value = pct / 100.0 * total_value
+                    spendable_value = min(free_cash, allocated_value)
+                    if spendable_value > 0:
+                        amount = spendable_value // price
+                        amount = amount - amount % 100 
+                        print ("trying to adjust {} to {}%".format(stock, pct))
+                        self.winapi.adjustStock(stock, price, amount)
                 time.sleep(3) # pause 5 seconds after each order
         except:
             traceback.print_exc()
@@ -39,5 +47,8 @@ if __name__ == '__main__':
     ttc = TTC_autoTrader()
     while True:
         print(strftime("%Y-%m-%d %H:%M:%S"))
+#         orderP = threading.Thread(target=ttc.orderProcess)
+#         orderP.start()
+#         orderP.join(10)
         ttc.orderProcess()
         time.sleep(180)

@@ -8,6 +8,10 @@ import poplib, email
 import configparser
 import time
 
+import feedparser
+import urllib.request
+
+
 #import codecs
 
 iniPath="autoTrading_ttc.ini"
@@ -20,12 +24,11 @@ class emailOrderParser(object):
     def __init__(self):
         '''
         '''
-        pass
+        self.config = configparser.ConfigParser()
+        self.config.read(iniPath)
         
     def setupConfig(self):
-        config = configparser.ConfigParser()
-        config.read(iniPath)
-        emailCfg = config["EmailConfig"]
+        emailCfg = self.config["EmailConfig"]
         self.pop_con = poplib.POP3_SSL(emailCfg["emailServer"], port='995', timeout=5)
         #print (self.pop_con.getwelcome())
         self.pop_con.user(emailCfg["username"])#emailCfg["username"]
@@ -51,6 +54,22 @@ class emailOrderParser(object):
                 continue
         return []
     
+    def retrieveMsg_v2(self):
+        emailCfg = self.config["EmailConfig"]
+        auth_handler = urllib.request.HTTPBasicAuthHandler()
+        auth_handler.add_password(
+            realm='mail.google.com',
+            uri='https://mail.google.com',
+            user='%s@gmail.com' % emailCfg["username"],
+            passwd=emailCfg["password"]
+        )
+        opener = urllib.request.build_opener(auth_handler)
+        urllib.request.install_opener(opener)
+        feed = urllib.request.urlopen('https://mail.google.com/mail/feed/atom')        
+        d = feedparser.parse(feed)
+        
+        print(d)
+    
     def getOrder(self):
         msgs = self.retrieveMsg()
         orders = []
@@ -70,9 +89,9 @@ class emailOrderParser(object):
                 stock_pct = float(trade[1])
                 stock_price = float(trade[2])
                 if len(stock_code) == 6 and 0 <= stock_pct <= 100 and stock_price > 0:
-                    print("received order {} for pct {} of price {}".format(stock_code, stock_pct, stock_price))
+                    print("received order {} for {}% of portfolio at price {}".format(stock_code, stock_pct, stock_price))
                     orders.append((stock_code, stock_pct, stock_price))
         return orders
-    
+#     
 # ep = emailOrderParser()
-# ep.getOrder()
+# ep.retrieveMsg_v2()

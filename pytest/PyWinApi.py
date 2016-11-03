@@ -37,7 +37,7 @@ class tradingAPI:
         self.main_window = self.find_window(None, self.tradingCfg["main_window_label"])
         if not self.main_window:
             raise "Trading application not detected!!"
-        self.getFocus()
+        #self.getFocus()
         self.trading_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["double_trade_panel_child_number"]))
         if not self.trading_window:
             raise "Trading panel can't be located"   
@@ -58,25 +58,19 @@ class tradingAPI:
     def clearStock(self, stock):
         self.getFocus()
         self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-        time.sleep(1.5)
         self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
         self.click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # click static to reflect the stock position
         self.clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
+        #self.set_background()
         
-    def adjustStock(self, stock, pct, price, cash, tol):
-        self.getFocus()
+    def adjustStock(self, stock, price, amount):
         # for now we only have buy position from empty position
-        #self.findStockPosition(stock) # this can't be easily achieved for now
-        allocated_value = pct / 100.0 * tol
-        spendable_value = min(cash, allocated_value)
-        if spendable_value > 3000:
-            amount = spendable_value // price
-            amount = amount - amount % 100 
-            self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-            time.sleep(1.5)
-            self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
-            self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
-            self.click(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
+        self.getFocus()
+        self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
+        self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
+        self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
+        self.clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
+        #self.set_background()
 
     def findStockPosition(self, stock):
         self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index "])][int(self.tradingCfg["order_value_index "])], stock)
@@ -100,10 +94,20 @@ class tradingAPI:
 
     def set_foreground(self):
         """put the window in the foreground"""
-        focusWindow(self.main_window, win32con.SW_SHOWDEFAULT)
+        focusWindow(self.main_window, win32con.SW_SHOWNORMAL)
+        
+    def set_background(self):
+        """put the window in the foreground"""
+        focusWindow(self.main_window, win32con.SW_HIDE)
         
     def set_doubleTradeScreen(self):
         sendKey(self.main_window, win32con.VK_F6)
+        
+    def set_focus_buyScreen(self):
+        sendKey(self.trading_window, win32con.VK_F1)
+
+    def set_focus_sellScreen(self):
+        sendKey(self.trading_window, win32con.VK_F2)
         
     def findChildWindows(self, hwnd):
         windows = []
@@ -122,9 +126,11 @@ class tradingAPI:
         :return:
         '''
         win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, text)
+        self.click(hwnd)
 
     def setComboBoxIndex(self, hwnd, index):
         win32gui.SendMessage(hwnd,win32con.CB_SETCURSEL,index,0)
+        time.sleep(0.5)
 
     def getWindowText(self, hwnd):
         return win32gui.GetWindowText(hwnd)
