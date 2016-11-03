@@ -22,7 +22,7 @@ class TTC_autoTrader:
     
     def orderProcess(self):
         #orders = self.getOrderDetails()
-        orders = [('600689', 0, 1)]
+        orders = [('000001', 10, 1)]
         try:
             for stock, pct, price in orders:
                 free_cash, _, total_value, _ = self.winapi.getAccDetails()
@@ -47,8 +47,8 @@ if __name__ == '__main__':
     ttc = TTC_autoTrader()
     while True:
         print(strftime("%Y-%m-%d %H:%M:%S"))
-#         orderP = threading.Thread(target=ttc.orderProcess)
-#         orderP.start()
-#         orderP.join(10)
-        ttc.orderProcess()
+        orderP = threading.Thread(target=ttc.orderProcess)
+        orderP.start()
+        orderP.join(10) 
+#         ttc.orderProcess()
         time.sleep(180)

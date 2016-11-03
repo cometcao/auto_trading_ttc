@@ -43,7 +43,7 @@ class tradingAPI:
             raise "Trading panel can't be located"   
         
     def getFocus(self):
-        self.set_foreground()
+        #self.set_foreground()
         self.set_doubleTradeScreen()
         time.sleep(0.5)
 
@@ -125,12 +125,16 @@ class tradingAPI:
         :param text: 要设置的文本
         :return:
         '''
-        win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, text)
         self.click(hwnd)
+        win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, "")
+        time.sleep(1)
+        win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, text)
+        time.sleep(1.5)
+#         win32gui.SendMessage(hwnd, win32con.WM_ACTIVATE, None, None)
+        
 
     def setComboBoxIndex(self, hwnd, index):
         win32gui.SendMessage(hwnd,win32con.CB_SETCURSEL,index,0)
-        time.sleep(0.5)
 
     def getWindowText(self, hwnd):
         return win32gui.GetWindowText(hwnd)
