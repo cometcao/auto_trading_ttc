@@ -47,8 +47,8 @@ if __name__ == '__main__':
     ttc = TTC_autoTrader()
     while True:
         print(strftime("%Y-%m-%d %H:%M:%S"))
-#         orderP = threading.Thread(target=ttc.orderProcess)
-#         orderP.start()
-#         orderP.join(10) 
-        ttc.orderProcess()
+        orderP = threading.Thread(target=ttc.orderProcess)
+        orderP.start()
+        orderP.join(10) 
+#         ttc.orderProcess()
         time.sleep(180)
