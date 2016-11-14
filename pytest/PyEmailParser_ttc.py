@@ -77,6 +77,7 @@ class emailOrderParser(object):
             orderString = m["subject"]
             if orderString:
                 orders += self.parseOrder(orderString)
+        orders.sort(key=lambda tup: tup[1])
         return orders
             
     def parseOrder(self, sub_str):
@@ -88,7 +89,7 @@ class emailOrderParser(object):
                 stock_code = trade[0]
                 stock_pct = float(trade[1])
                 stock_price = float(trade[2])
-                if len(stock_code) == 6 and 0 <= stock_pct <= 100 and stock_price > 0:
+                if len(stock_code) == 6 and 0 <= stock_pct <= 100 and stock_price >= 0:
                     print("received order {} for {}% of portfolio at price {}".format(stock_code, stock_pct, stock_price))
                     orders.append((stock_code, stock_pct, stock_price))
         return orders
