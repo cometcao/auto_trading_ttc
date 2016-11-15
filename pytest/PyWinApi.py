@@ -67,9 +67,12 @@ class tradingAPI:
         
     def adjustStock(self, stock, price, amount):
         # for now we only have buy position from empty position
+        order_index = 1
+        if stock[0] == '6': #shang hai stock exchange code
+            order_index = 2
         self._getFocus()
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
+        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], order_index)
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
         self._clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
         #self.set_background()

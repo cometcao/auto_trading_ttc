@@ -50,7 +50,7 @@ class TTC_autoTrader:
                         amount = amount - amount % 100 
                         self.root_log.info("trying to adjust {} to {}%".format(stock, pct))
                         self.winapi.adjustStock(stock, price, amount)
-                time.sleep(3) # pause 5 seconds after each order
+                time.sleep(5) # pause 5 seconds after each order
         except:
             traceback.print_exc()
             raise "order failed! please check!"
