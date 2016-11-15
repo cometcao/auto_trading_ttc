@@ -10,7 +10,7 @@ import time
 
 import feedparser
 import urllib.request
-
+import logging
 
 #import codecs
 
@@ -21,13 +21,14 @@ class emailOrderParser(object):
     classdocs
     '''
 
-    def __init__(self):
+    def __init__(self, root_log):
         '''
         '''
+        self.root_log = root_log
         self.config = configparser.ConfigParser()
         self.config.read(iniPath)
         
-    def setupConfig(self):
+    def _setupConfig(self):
         emailCfg = self.config["EmailConfig"]
         self.pop_con = poplib.POP3_SSL(emailCfg["emailServer"], port='995', timeout=5)
         #print (self.pop_con.getwelcome())
@@ -36,25 +37,25 @@ class emailOrderParser(object):
         self.order_separator = emailCfg["order_separator"]
         self.stock_order_separator = emailCfg["stock_order_separator"]
         
-    def retrieveMsg(self):
+    def _retrieveMsg(self):
         for i in range(5): # retry max 5 times
             try:
-                self.setupConfig()
+                self._setupConfig()
                 messages = [self.pop_con.retr(i) for i in range(1, len(self.pop_con.list()[1]) + 1)]
                 # Concat message pieces:
                 messages = [b"\n".join(mssg[1]) for mssg in messages]
                 #Parse message intom an email object:
                 messages = [email.message_from_bytes(mssg) for mssg in messages]
                 self.pop_con.quit()
-                print ("number of message received:{}".format(len(messages)))
+                self.root_log.info("number of message received:{}".format(len(messages)))
                 return messages
             except:
-                print ("failed to connect to read email! retrying...")
+                self.root_log.error("failed to connect to read email! retrying...")
                 time.sleep(0.5)
                 continue
         return []
     
-    def retrieveMsg_v2(self):
+    def _retrieveMsg_v2(self):
         emailCfg = self.config["EmailConfig"]
         auth_handler = urllib.request.HTTPBasicAuthHandler()
         auth_handler.add_password(
@@ -67,20 +68,19 @@ class emailOrderParser(object):
         urllib.request.install_opener(opener)
         feed = urllib.request.urlopen('https://mail.google.com/mail/feed/atom')        
         d = feedparser.parse(feed)
-        
         print(d)
     
     def getOrder(self):
-        msgs = self.retrieveMsg()
+        msgs = self._retrieveMsg()
         orders = []
         for m in msgs:
             orderString = m["subject"]
             if orderString:
-                orders += self.parseOrder(orderString)
+                orders += self._parseOrder(orderString)
         orders.sort(key=lambda tup: tup[1])
         return orders
             
-    def parseOrder(self, sub_str):
+    def _parseOrder(self, sub_str):
         orders = []
         orderlist = sub_str.split(self.order_separator)
         for order in orderlist:
@@ -90,9 +90,9 @@ class emailOrderParser(object):
                 stock_pct = float(trade[1])
                 stock_price = float(trade[2])
                 if len(stock_code) == 6 and 0 <= stock_pct <= 100 and stock_price >= 0:
-                    print("received order {} for {}% of portfolio at price {}".format(stock_code, stock_pct, stock_price))
+                    self.root_log.info("received order {} for {}% of portfolio at price {}".format(stock_code, stock_pct, stock_price))
                     orders.append((stock_code, stock_pct, stock_price))
         return orders
 #     
 # ep = emailOrderParser()
-# ep.retrieveMsg_v2()
+# ep._retrieveMsg_v2()

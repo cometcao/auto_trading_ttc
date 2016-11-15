@@ -11,23 +11,36 @@ from PyEmailParser_ttc import emailOrderParser
 from PyWinApi import tradingAPI
 from time import strftime
 import threading
+import logging
+import sys
+
+
 
 class TTC_autoTrader:
     def __init__(self):
+        self._init_log()
         self.winapi = tradingAPI()
+    
+    def _init_log(self):
+        self.root_log = logging.getLogger()
+        self.root_log.setLevel(logging.INFO)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s-%(message)s')
+        ch.setFormatter(formatter)
+        self.root_log.addHandler(ch)
         
-    def getOrderDetails(self):
-        ep = emailOrderParser()
+    def _getOrderDetails(self):
+        ep = emailOrderParser(self.root_log)
         return ep.getOrder()
     
     def orderProcess(self):
-        orders = self.getOrderDetails()
-        #orders = [('600689', 0, 1)]
+        orders = self._getOrderDetails()
         try:
             for stock, pct, price in orders:
                 free_cash, _, total_value, _ = self.winapi.getAccDetails()
                 if pct == 0: # sell off the stock
-                    print ("trying to sell off {}".format(stock))
+                    self.root_log.info("trying to sell off {}".format(stock))
                     self.winapi.clearStock(stock)
                 else:
                     allocated_value = pct / 100.0 * total_value
@@ -35,7 +48,7 @@ class TTC_autoTrader:
                     if spendable_value > 0:
                         amount = spendable_value // price
                         amount = amount - amount % 100 
-                        print ("trying to adjust {} to {}%".format(stock, pct))
+                        self.root_log.info("trying to adjust {} to {}%".format(stock, pct))
                         self.winapi.adjustStock(stock, price, amount)
                 time.sleep(3) # pause 5 seconds after each order
         except:
@@ -43,12 +56,10 @@ class TTC_autoTrader:
             raise "order failed! please check!"
             
 if __name__ == '__main__':
-    print("Auto Trading system started/自动交易系统运行中， 请开启同花顺网上交易系统5.0")
     ttc = TTC_autoTrader()
+    ttc.root_log.info("Auto Trading system started/自动交易系统运行中， 请开启同花顺网上交易系统5.0")
     while True:
-        print(strftime("%Y-%m-%d %H:%M:%S"))
         orderP = threading.Thread(target=ttc.orderProcess)
         orderP.start()
         orderP.join(10) 
-#         ttc.orderProcess()
         time.sleep(180)

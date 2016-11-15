@@ -12,7 +12,7 @@ import win32con
 from winguiauto import *
 import re
 import configparser
-
+import logging
 
 iniPath="autoTrading_ttc.ini"
 class tradingAPI:
@@ -25,28 +25,28 @@ class tradingAPI:
         '''
         Constructor
         '''
-        self.setupConfig()
-        self.grabTradingApplication()
+        self._setupConfig()
+        self._grabTradingApplication()
     
-    def setupConfig(self):
+    def _setupConfig(self):
         config = configparser.ConfigParser()
         config.read(iniPath)
         self.tradingCfg = config["TradingGUIIndexMap_THS"]
 
-    def grabTradingApplication(self):
-        self.main_window = self.find_window(None, self.tradingCfg["main_window_label"])
+    def _grabTradingApplication(self):
+        self.main_window = self._find_window(None, self.tradingCfg["main_window_label"])
         if not self.main_window:
             raise "Trading application not detected!!"
-        self.getFocus()
-#         self.set_foreground()
-#         self.set_doubleTradeScreen()
+        self._getFocus()
+#         self._set_foreground()
+#         self._set_doubleTradeScreen()
         self.trading_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["double_trade_panel_child_number"]))
         if not self.trading_window:
             raise "Trading panel can't be located"   
         
-    def getFocus(self):
+    def _getFocus(self):
         #self.set_foreground()
-        self.set_doubleTradeScreen()
+        self._set_doubleTradeScreen()
         time.sleep(0.5)
 
     def getAccDetails(self):
@@ -58,30 +58,30 @@ class tradingAPI:
         return free_cash, port_value, total_value, frozen_value
         
     def clearStock(self, stock):
-        self.getFocus()
-        self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-        self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
-        self.click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # click static to reflect the stock position
-        self.clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
+        self._getFocus()
+        self._setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
+        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
+        self._click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # _click static to reflect the stock position
+        self._clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
         #self.set_background()
         
     def adjustStock(self, stock, price, amount):
         # for now we only have buy position from empty position
-        self.getFocus()
-        self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-        self.setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
-        self.setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
-        self.clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
+        self._getFocus()
+        self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
+        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1)
+        self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
+        self._clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
         #self.set_background()
 
     def findStockPosition(self, stock):
-        self.setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index "])][int(self.tradingCfg["order_value_index "])], stock)
-        self.click(self.trading_window[15][0]) # click static to reflect the stock position
-        posNum = int(self.getWindowText(self.trading_window[16][0]))
+        self._setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index "])][int(self.tradingCfg["order_value_index "])], stock)
+        self._click(self.trading_window[15][0]) # click static to reflect the stock position
+        posNum = int(self._getWindowText(self.trading_window[16][0]))
         
 #################################################################################################  
         
-    def find_window(self, class_name, window_name = None):
+    def _find_window(self, class_name, window_name = None):
         """find a window by its class_name"""
         return win32gui.FindWindow(class_name, window_name)
 
@@ -90,28 +90,28 @@ class tradingAPI:
         if re.match(wildcard, str(win32gui.GetWindowText(hwnd))) != None:
             self.main_window = hwnd
 
-    def find_window_wildcard(self, wildcard):
+    def _find_window_wildcard(self, wildcard):
         self.main_window = None
         win32gui.EnumWindows(self._window_enum_callback, wildcard)
 
-    def set_foreground(self):
+    def _set_foreground(self):
         """put the window in the foreground"""
         focusWindow(self.main_window, win32con.SW_SHOWNORMAL)
         
-    def set_background(self):
+    def _set_background(self):
         """put the window in the foreground"""
         focusWindow(self.main_window, win32con.SW_HIDE)
         
-    def set_doubleTradeScreen(self):
+    def _set_doubleTradeScreen(self):
         sendKey(self.main_window, win32con.VK_F6)
         
-    def set_focus_buyScreen(self):
+    def _set_focus_buyScreen(self):
         sendKey(self.trading_window, win32con.VK_F1)
 
-    def set_focus_sellScreen(self):
+    def _set_focus_sellScreen(self):
         sendKey(self.trading_window, win32con.VK_F2)
         
-    def findChildWindows(self, hwnd):
+    def _findChildWindows(self, hwnd):
         windows = []
         try:
             win32gui.EnumChildWindows(hwnd, self._windowEnumerationHandler, windows)
@@ -120,14 +120,14 @@ class tradingAPI:
             return
         return windows
     
-    def setEditText(self, hwnd, text):
+    def _setEditText(self, hwnd, text):
         '''
         设置Edit控件的文本，这个只能是单行文本
         :param hwnd: Edit控件句柄
         :param text: 要设置的文本
         :return:
         '''
-        self.click(hwnd)
+        self._click(hwnd)
         win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, "")
         time.sleep(1)
         win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, text)
@@ -135,14 +135,14 @@ class tradingAPI:
 #         win32gui.SendMessage(hwnd, win32con.WM_ACTIVATE, None, None)
         
 
-    def setComboBoxIndex(self, hwnd, index):
+    def _setComboBoxIndex(self, hwnd, index):
         win32gui.SendMessage(hwnd,win32con.CB_SETCURSEL,index,0)
 
-    def getWindowText(self, hwnd):
+    def _getWindowText(self, hwnd):
         return win32gui.GetWindowText(hwnd)
 
-    def clickButton(self, hwnd):
-        '''Simulates a single mouse click on a button
+    def _clickButton(self, hwnd):
+        '''Simulates a single mouse _click on a button
     
         Parameters
         ----------
@@ -154,12 +154,12 @@ class tradingAPI:
             okButton = findControl(fontDialog,
                                    wantedClass="Button",
                                    wantedText="OK")
-            clickButton(okButton)
+            _clickButton(okButton)
         '''
         clickButton(hwnd)
 
 
-    def click(self, hwnd):
+    def _click(self, hwnd):
         '''
         模拟鼠标左键单击
         :param hwnd: 要单击的控件、窗体句柄
