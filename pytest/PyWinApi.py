@@ -75,7 +75,6 @@ class tradingAPI:
         self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], order_index)
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
         self._clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
-        #self.set_background()
 
     def findStockPosition(self, stock):
         self._setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index "])][int(self.tradingCfg["order_value_index "])], stock)
@@ -134,7 +133,7 @@ class tradingAPI:
         win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, "")
         time.sleep(1)
         win32gui.SendMessage(hwnd, win32con.WM_SETTEXT, None, text)
-        time.sleep(1.5)
+        time.sleep(2)
 #         win32gui.SendMessage(hwnd, win32con.WM_ACTIVATE, None, None)
         
 
