@@ -11,10 +11,30 @@ import time
 import feedparser
 import urllib.request
 import logging
+import Crypto
+from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Hash import MD5
 
 #import codecs
 
 iniPath="autoTrading_ttc.ini"
+
+private_key="""
+MIICXQIBAAKBgQCh2nG3jEuM1dOTAqvC/A1OysiLbXJm4uIZ77FSM0Br4Adpwf3e
+bvF4FN0ENpYAvKsuwjYbwBVWBAGBRZkWnIi5qH9MAcgnXnba0yPySZU7IO/FYCUH
+8CDB4mBlqIE+tdpgishYfTTxxkA4LYQGne+bqrrt6hFwMWGvX3KedgDDgwIDAQAB
+AoGAfFHQ1R5zDXtUpu//RKbcBfBmuAnaPML6ztc4iZ4KVpHev9IdENSAry6/UTQo
+ZeqFRkYwz4HsIYS0LzppS1/y+AUNV9pSc6jsCjTpYwWV3c3ee8vRvbni9fNuDeCT
+tgFvVwS9nijwgZIK/AB+Za+gcPF3YhGH5HEwI7AOTHv6KaECQQDm7CXmc5ZBwm2x
+dW1YY5ZWvSNIf+BYhxFEUOr8GIG6i8e81kkHbm8UbdwedU7uL6cgo4AA2zjXIFLE
+pYqT5kczAkEAs24ciue0z4IUOL8iUFBmIeqdHf/SVdiedH3MPfQnn9EWyvEdb/RH
+EbYifk5pqhLgd6O8cnXCivdwcoi0hz9ScQJBAOC2xr72li6R5Kr/CZQs/RyVW6Nu
+hUPA1GW1lKYTtxJwecNih5iKt9+adMzS/Sc+ChXx5Vtv+WUnGEQyj6MTQQ8CQFN6
+yGbL9LCSqYvZSUKqlUn0WNMrQZXVKauzF4I/hOvzILKcyYBb23DfF19CZiDNlYe0
+Mynhpfh3tOZkufEuwdECQQCXxHylg2DbYFnvxEtPD7VkawEjELcGRHf2xL0zzsR0
+3faoeSqXcEz8mnKlSId8fWLNwzBpEhoPLKIdiNCsd7tg
+"""
 
 class emailOrderParser(object):
     '''

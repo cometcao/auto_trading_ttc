@@ -39,6 +39,7 @@ class TTC_autoTrader:
         try:
             for stock, pct, price in orders:
                 free_cash, _, total_value, _ = self.winapi.getAccDetails()
+                self.root_log.info("current cash: {} total value: {}".format(free_cash, total_value))
                 if pct == 0: # sell off the stock
                     self.root_log.info("trying to sell off {}".format(stock))
                     self.winapi.clearStock(stock)
@@ -48,9 +49,9 @@ class TTC_autoTrader:
                     if spendable_value > 0:
                         amount = spendable_value // price
                         amount = amount - amount % 100 
-                        self.root_log.info("trying to adjust {} to {}%".format(stock, pct))
+                        self.root_log.info("trying to adjust {} to {}% with amount {}".format(stock, pct, amount))
                         self.winapi.adjustStock(stock, price, amount)
-                time.sleep(10) # pause 10 seconds after each order
+                time.sleep(30) # pause 10 seconds after each order
         except:
             traceback.print_exc()
             raise "order failed! please check!"

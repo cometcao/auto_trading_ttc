@@ -50,6 +50,7 @@ class tradingAPI:
         time.sleep(0.5)
 
     def getAccDetails(self):
+        self._getFocus()
         summary_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["summary_panel_child_number"]))
         free_cash = float(summary_window[int(self.tradingCfg["summary_free_cash_index"])][int(self.tradingCfg["summary_value_index"])]) # free cash
         port_value = float(summary_window[int(self.tradingCfg["summary_port_value_index"])][int(self.tradingCfg["summary_value_index"])]) # port value
@@ -57,22 +58,32 @@ class tradingAPI:
         frozen_value = float(summary_window[int(self.tradingCfg["summary_frozen_value_index"])][int(self.tradingCfg["summary_value_index"])]) # frozen asset
         return free_cash, port_value, total_value, frozen_value
         
-    def clearStock(self, stock):
+    def clearStock(self, stock, price=0):
+        order_index = 0
+        if price == 0:
+            if stock[0] == '6': #shang hai stock exchange code
+                order_index = 2
+            else:
+                order_index = 1
         self._getFocus()
         self._setEditText(self.trading_window[int(self.tradingCfg["sell_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
-        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], 1) 
-        self._click(self.trading_window[int(self.tradingCfg["sell_order_input_price_index"])][int(self.tradingCfg["order_value_index"])]) # _click static to reflect the stock position
+        self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["sell_order_type_index"])][int(self.tradingCfg["order_value_index"])], order_index) 
+        #self._setEditText(self.trading_window[int(self.tradingCfg["sell_order_price_index"])][int(self.tradingCfg["order_value_index"])], str(price))
+        self._click(self.trading_window[int(self.tradingCfg["sell_order_display_amount_index"])][int(self.tradingCfg["order_value_index"])]) # _click static to reflect the stock position
         self._clickButton(self.trading_window[int(self.tradingCfg["sell_button_index"])][int(self.tradingCfg["order_value_index"])])# sell button
-        #self.set_background()
         
     def adjustStock(self, stock, price, amount):
         # for now we only have buy position from empty position
-        order_index = 1
-        if stock[0] == '6': #shang hai stock exchange code
-            order_index = 2
+        order_index = 0
+        if price == 0:
+            if stock[0] == '6': #shang hai stock exchange code
+                order_index = 2
+            else:
+                order_index = 1
         self._getFocus()
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
         self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], order_index)
+        #self._setEditText(self.trading_window[int(self.tradingCfg["buy_order_price_index"])][int(self.tradingCfg["order_value_index"])], str(price))
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_amount_index"])][int(self.tradingCfg["order_value_index"])], str(amount)) # enter stock amount
         self._clickButton(self.trading_window[int(self.tradingCfg["buy_button_index"])][int(self.tradingCfg["order_value_index"])])# buy button
 
