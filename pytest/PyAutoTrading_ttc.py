@@ -36,6 +36,7 @@ class TTC_autoTrader:
     
     def orderProcess(self):
         orders = self._getOrderDetails()
+        self.winapi.grabTradingApplication()
         try:
             for stock, pct, price in orders:
                 free_cash, _, total_value, _ = self.winapi.getAccDetails()

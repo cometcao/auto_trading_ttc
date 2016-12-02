@@ -26,14 +26,14 @@ class tradingAPI:
         Constructor
         '''
         self._setupConfig()
-        self._grabTradingApplication()
+        self.grabTradingApplication()
     
     def _setupConfig(self):
         config = configparser.ConfigParser()
         config.read(iniPath)
         self.tradingCfg = config["TradingGUIIndexMap_THS"]
 
-    def _grabTradingApplication(self):
+    def grabTradingApplication(self):
         self.main_window = self._find_window(None, self.tradingCfg["main_window_label"])
         if not self.main_window:
             raise "Trading application not detected!!"
@@ -52,11 +52,12 @@ class tradingAPI:
     def getAccDetails(self):
         self._getFocus()
         summary_window = findSpecifiedWindows(self.main_window, int(self.tradingCfg["summary_panel_child_number"]))
-        free_cash = float(summary_window[int(self.tradingCfg["summary_free_cash_index"])][int(self.tradingCfg["summary_value_index"])]) # free cash
-        port_value = float(summary_window[int(self.tradingCfg["summary_port_value_index"])][int(self.tradingCfg["summary_value_index"])]) # port value
-        total_value = float(summary_window[int(self.tradingCfg["summary_total_value_index"])][int(self.tradingCfg["summary_value_index"])]) # total asset
-        frozen_value = float(summary_window[int(self.tradingCfg["summary_frozen_value_index"])][int(self.tradingCfg["summary_value_index"])]) # frozen asset
-        return free_cash, port_value, total_value, frozen_value
+        free_cash = summary_window[int(self.tradingCfg["summary_free_cash_index"])][int(self.tradingCfg["summary_value_index"])] # free cash
+        port_value = summary_window[int(self.tradingCfg["summary_port_value_index"])][int(self.tradingCfg["summary_value_index"])] # port value
+        total_value = summary_window[int(self.tradingCfg["summary_total_value_index"])][int(self.tradingCfg["summary_value_index"])] # total asset
+        frozen_value = summary_window[int(self.tradingCfg["summary_frozen_value_index"])][int(self.tradingCfg["summary_value_index"])] # frozen asset
+        print(free_cash)
+        return float(free_cash), float(port_value), float(total_value), float(frozen_value)
         
     def clearStock(self, stock, price=0):
         order_index = 0
@@ -75,11 +76,10 @@ class tradingAPI:
     def adjustStock(self, stock, price, amount):
         # for now we only have buy position from empty position
         order_index = 0
-        if price == 0:
-            if stock[0] == '6': #shang hai stock exchange code
-                order_index = 2
-            else:
-                order_index = 1
+        if stock[0] == '6': #shang hai stock exchange code
+            order_index = 2
+        else:
+            order_index = 1
         self._getFocus()
         self._setEditText(self.trading_window[int(self.tradingCfg["buy_stock_code_index"])][int(self.tradingCfg["order_value_index"])], stock)
         self._setComboBoxIndex(self.trading_window[int(self.tradingCfg["buy_order_type_index"])][int(self.tradingCfg["order_value_index"])], order_index)
