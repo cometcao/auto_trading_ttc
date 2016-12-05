@@ -39,12 +39,12 @@ class TTC_autoTrader:
         self.winapi.grabTradingApplication()
         try:
             for stock, pct, price in orders:
-                free_cash, _, total_value, _ = self.winapi.getAccDetails()
-                self.root_log.info("current cash: {} total value: {}".format(free_cash, total_value))
                 if pct == 0: # sell off the stock
                     self.root_log.info("trying to sell off {}".format(stock))
                     self.winapi.clearStock(stock)
                 else:
+                    free_cash, _, total_value, _ = self.winapi.getAccDetails()
+                    self.root_log.info("current cash: {} total value: {}".format(free_cash, total_value))
                     allocated_value = pct / 100.0 * total_value
                     spendable_value = min(free_cash, allocated_value)
                     if spendable_value > 0:
