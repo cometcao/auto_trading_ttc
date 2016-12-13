@@ -47,6 +47,7 @@ class tradingAPI:
     def _getFocus(self):
         #self.set_foreground()
         self._set_doubleTradeScreen()
+        self._set_refreshTradeScreen()
         time.sleep(0.5)
 
     def getAccDetails(self):
@@ -117,6 +118,9 @@ class tradingAPI:
         
     def _set_doubleTradeScreen(self):
         sendKey(self.main_window, win32con.VK_F6)
+        
+    def _set_refreshTradeScreen(self):
+        sendKey(self.main_window, win32con.VK_F5)
         
     def _set_focus_buyScreen(self):
         sendKey(self.trading_window, win32con.VK_F1)
